@@ -10,6 +10,8 @@ export const Body: React.FC = () => {
   const [selectedData, setSelectedData] = useState<DataObject | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [responseData, setResponseData] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     loadEndpointData(currentPage);
@@ -37,31 +39,37 @@ export const Body: React.FC = () => {
     const dataToSend = { ...rowData };
     delete dataToSend['_id'];
     setSelectedData(dataToSend);
-    sendSelectedData();
+    sendSelectedData(dataToSend);
   };
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
 
-  const sendSelectedData = async () => {
+  const sendSelectedData = async (data: DataObject) => {
     try {
-      if (selectedData) {
-        const response = await fetch('http://localhost:3000/api/predict', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(selectedData)
-        });
-        if (!response.ok) {
-          throw new Error('Failed to send data');
-        }
-        console.log('Data sent successfully');
+      const response = await fetch('http://localhost:3000/api/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error('Failed to send data');
       }
+      const result = await response.json();
+      setResponseData(result);
+      setIsModalOpen(true); // Open the modal when data is received
+      console.log('Data sent successfully', result);
     } catch (error) {
       console.error('Error sending data:', error);
     }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setResponseData(null);
   };
 
   return (
@@ -101,6 +109,44 @@ export const Body: React.FC = () => {
           <button disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)}>Next</button>
         </div>
       </section>
+
+      {responseData && (
+        <div
+          className={`modal fade ${isModalOpen ? 'show' : ''}`}
+          style={{ display: isModalOpen ? 'block' : 'none', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+          tabIndex={-1}
+          role="dialog"
+        >
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header" style={{ backgroundColor: '#007bff', color: '#fff' }}>
+                <h5 className="modal-title">Prediction Result</h5>
+                <button type="button" className="close" aria-label="Close" onClick={closeModal} style={{ color: '#fff' }}>
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <pre
+                  style={{
+                    backgroundColor: '#f8f9fa',
+                    padding: '10px',
+                    borderRadius: '5px',
+                    overflowX: 'auto',
+                  }}
+                >
+                  <span className='fs-5'>Malicious attack probability: {responseData.predictionResult}</span>
+                </pre>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={closeModal}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 };

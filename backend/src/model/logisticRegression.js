@@ -50,11 +50,11 @@ function logisticRegression(input) {
 function convertActionToNumeric(action) {
     switch (action) {
         case 'allow':
-            return 1;
+            return 0.1;
         case 'deny':
-            return 2;
+            return 0.2;
         case 'drop':
-            return 3;
+            return 0.3;
         default:
             throw new Error('Invalid action value');
     }
@@ -62,22 +62,3 @@ function convertActionToNumeric(action) {
 
 // Exportar la función para usarla en otros archivos
 module.exports = logisticRegression;
-
-// Ejemplo de uso
-const inputExample = {
-    "Source Port": 57222,
-    "Destination Port": 53,
-    "NAT Source Port": 54587,
-    "NAT Destination Port": 53,
-    "Action": "allow",
-    "Bytes": 177,
-    "Bytes Sent": 94,
-    "Bytes Received": 83,
-    "Packets": 2,
-    "Elapsed Time (sec)": 30,
-    "pkts_sent": 1,
-    "pkts_received": 1
-};
-
-const probability = logisticRegression(inputExample);
-console.log(`Probability of being malicious: ${probability}`);

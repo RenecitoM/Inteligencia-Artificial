@@ -160,3 +160,20 @@ tr:hover {
 .pagination button:hover {
   background-color: #ddd;
 }
+
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-body {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+}
+
+.modal-content {
+  border-radius: 0.3rem;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+}
